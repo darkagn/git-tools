@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# start by ensuring we are on master and we have the latest
+echo '=== Switching to master branch...'
+git checkout master
+git pull
+
+# prune remote branches
+echo '=== Pruning remote branches from origin...'
+git remote prune origin
+
+# prune local branches
+echo '=== Pruning local branches that are deleted from origin...'
+git fetch -p && for branch in $(git branch -vv | grep ': gone]' | awk '{print $1}'); do git branch -D ${branch}; done
+
+# return to original branch
+echo '=== Returning to original branch...'
+git checkout -
+git pull
+
+echo '=== Done.'
