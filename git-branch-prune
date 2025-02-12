@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # start by ensuring we are on master and we have the latest
-echo '=== Switching to master branch...'
-git checkout master
+echo '=== Switching to develop branch...'
+git checkout develop
 git pull
 
 # prune remote branches
