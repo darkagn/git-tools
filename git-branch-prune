@@ -1,8 +1,19 @@
 #!/bin/bash
 
-# start by ensuring we are on master and we have the latest
-echo '=== Switching to develop branch...'
-git checkout develop
+# start by ensuring we are on the default branch and we have the latest
+export DEFAULT_BRANCH=$(git remote show origin | sed -n '/HEAD branch/s/.*: //p')
+export CURRENT_BRANCH=$(git branch --show-current)
+
+echo "=== Current branch is ${CURRENT_BRANCH}"
+echo "=== Default branch is ${DEFAULT_BRANCH}"
+
+if [ "${CURRENT_BRANCH}" == "${DEFAULT_BRANCH}" ]; then
+  echo '=== Already on the default branch...'
+else
+  echo '=== Switching to default branch...'
+  git checkout ${DEFAULT_BRANCH}
+fi
+
 git pull
 
 # prune remote branches
@@ -13,9 +24,11 @@ git remote prune origin
 echo '=== Pruning local branches that are deleted from origin...'
 git fetch -p && for branch in $(git branch -vv | grep ': gone]' | awk '{print $1}'); do git branch -D ${branch}; done
 
-# return to original branch
-echo '=== Returning to original branch...'
-git checkout -
-git pull
+if [ "${CURRENT_BRANCH}" != "${DEFAULT_BRANCH}" ]; then
+  # return to original branch
+  echo '=== Returning to original branch...'
+  git checkout ${CURRENT_BRANCH}
+  git pull
+fi
 
 echo '=== Done.'
